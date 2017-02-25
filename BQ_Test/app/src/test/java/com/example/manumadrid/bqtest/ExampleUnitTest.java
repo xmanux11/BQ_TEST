@@ -1,4 +1,4 @@
-package com.example.manumadrid.bq_test;
+package com.example.manumadrid.bqtest;
 
 import org.junit.Test;
 

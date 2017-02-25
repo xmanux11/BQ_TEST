@@ -1,10 +1,11 @@
-package com.example.manumadrid.bq_test;
+package com.example.manumadrid.bqtest;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -19,15 +20,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 
-import android.view.inputmethod.InputMethodSession;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.evernote.client.android.EvernoteSession;
-import com.evernote.client.android.login.EvernoteLoginFragment;
 
 
 /**
@@ -41,7 +39,8 @@ public class LoginActivity extends AppCompatActivity {
      * TODO: remove after connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "bq@example.com:bqpass"};
+            "bq", "bqpass"};
+
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -51,10 +50,12 @@ public class LoginActivity extends AppCompatActivity {
     private View mProgressView;
     private View mLoginFormView;
 
-    private static final String CONSUMER_KEY = "xmanuramosx";
-    private static final String CONSUMER_SECRET = "e7d177711a76a9d5";
+    private static final String CONSUMER_KEY = "manu-1736";
+    private static final String CONSUMER_SECRET = "785aa91177e553ff";
+    private static final boolean SUPPORT_APP_LINKED_NOTEBOOKS = true;
     private static final EvernoteSession.EvernoteService EVERNOTE_SERVICE = EvernoteSession.EvernoteService.SANDBOX;
     EvernoteSession mEvernoteSession = null;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +74,7 @@ public class LoginActivity extends AppCompatActivity {
                 return false;
             }
         });
-
+        context = this;
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -130,22 +131,29 @@ public class LoginActivity extends AppCompatActivity {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            mEvernoteSession = new EvernoteSession.Builder(this)
+            if (email.equals(DUMMY_CREDENTIALS[0])) {
+                email = CONSUMER_KEY;
+            }
+            if (password.equals(DUMMY_CREDENTIALS[1])) {
+                password = CONSUMER_SECRET;
+            }
+            mEvernoteSession = new EvernoteSession.Builder(context)
                     .setEvernoteService(EVERNOTE_SERVICE)
+                    .setSupportAppLinkedNotebooks(SUPPORT_APP_LINKED_NOTEBOOKS)
                     .build(email, password)
                     .asSingleton();
             mEvernoteSession.authenticate(this);
-            showProgress(true);
+//            showProgress(true);
 
         }
     }
 
     private boolean isEmailValid(String email) {
-        return email.contains("@");
+        return email.length() > 1;
     }
 
     private boolean isPasswordValid(String password) {
-        return password.length() > 4;
+        return password.length() > 2;
     }
 
     /**
@@ -189,9 +197,12 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         showProgress(false);
         switch (requestCode) {
-            case EvernoteSession.REQUEST_CODE_LOGIN:
+            case 66394:
                 if (resultCode == Activity.RESULT_OK) {
-                    startActivity(new Intent(this, MainActivity.class));
+                    finishAffinity();
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    this.startActivity(intent);
                 } else {
 
                     Snackbar.make(getCurrentFocus(), "Fallo en los datos, compruebelos y pruebe de nuevo", Snackbar.LENGTH_LONG)
