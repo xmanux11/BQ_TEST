@@ -9,25 +9,24 @@
         android:id="@+id/titulo"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:hint="@string/create_note_title"
         android:gravity="center"
+        android:hint="@string/create_note_title"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <EditText
         android:id="@+id/cuerpo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/create_note_body"
-        android:inputType="textMultiLine"
+        android:adjustViewBounds="true"
         android:ems="10"
-        android:adjustViewBounds="true" />
+        android:hint="@string/create_note_body"
+        android:inputType="textMultiLine" />
 
     <Button
         android:id="@+id/create"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/create_note_add" />
-
 
 
 </LinearLayout>

@@ -2,11 +2,8 @@ package com.example.manumadrid.bqtest;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -14,7 +11,6 @@ import com.evernote.auth.EvernoteAuth;
 import com.evernote.auth.EvernoteService;
 import com.evernote.client.android.EvernoteSession;
 import com.evernote.client.android.EvernoteUtil;
-import com.evernote.client.android.asyncclient.EvernoteNoteStoreClient;
 import com.evernote.clients.ClientFactory;
 import com.evernote.clients.NoteStoreClient;
 import com.evernote.edam.error.EDAMNotFoundException;
@@ -30,24 +26,23 @@ import com.evernote.thrift.TException;
 public class CreateNote extends Activity {
 
 
-
-    public CreateNote(){
+    public CreateNote() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.create_note_fragment);
-        Button create= (Button) findViewById(R.id.create);
+        setContentView(R.layout.create_note);
+        Button create = (Button) findViewById(R.id.create);
         create.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText titulo=((EditText) findViewById(R.id.titulo));
-                EditText cuerpo=((EditText) findViewById(R.id.cuerpo));
-                final String tituloText= titulo.getText().toString();
-                final String cuerpoText=cuerpo.getText().toString();
-                if(tituloText!=null&&!tituloText.isEmpty()){
-                    NoteBQ note= new NoteBQ(tituloText,cuerpoText, System.currentTimeMillis()/1000);
+                EditText titulo = ((EditText) findViewById(R.id.titulo));
+                EditText cuerpo = ((EditText) findViewById(R.id.cuerpo));
+                final String tituloText = titulo.getText().toString();
+                final String cuerpoText = cuerpo.getText().toString();
+                if (tituloText != null && !tituloText.isEmpty()) {
+                    NoteBQ note = new NoteBQ(tituloText, cuerpoText, System.currentTimeMillis() / 1000);
                     createNote(note);
                 }
             }
@@ -75,7 +70,7 @@ public class CreateNote extends Activity {
         } catch (TException e) {
             e.printStackTrace();
         } catch (EDAMNotFoundException e) {
-            Log.d("CreateNote","Unexpected error adding note using Evernote SDK", e);
+            Log.d("CreateNote", "Unexpected error adding note using Evernote SDK", e);
         }
 //        setResult(Activity.RESULT_OK);
         finish();

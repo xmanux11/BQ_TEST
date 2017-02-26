@@ -1,43 +1,26 @@
 package com.example.manumadrid.bqtest;
 
-
-
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
-
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.evernote.auth.EvernoteAuth;
-import com.evernote.auth.EvernoteService;
-import com.evernote.client.android.EvernoteOAuthActivity;
 import com.evernote.client.android.EvernoteSession;
-import com.evernote.client.android.EvernoteUtil;
-import com.evernote.client.android.login.EvernoteLoginActivity;
-import com.evernote.clients.ClientFactory;
-import com.evernote.clients.NoteStoreClient;
-import com.evernote.edam.type.Notebook;
-import com.evernote.edam.userstore.UserStore;
-
 
 import java.util.List;
-import java.util.Locale;
 
 
 /**
@@ -57,16 +40,13 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mPasswordView;
     private static final String CONSUMER_KEY = "manu-ramos-1";
     private static final String CONSUMER_SECRET = "d48315a7bdf66b59";
-    private static final String EXTRA_SUPPORT_APP_LINKED_NOTEBOOKS = "EXTRA_SUPPORT_APP_LINKED_NOTEBOOKS";
-    private static final String EXTRA_LOCALE = "EXTRA_LOCALE";
     private static final EvernoteSession.EvernoteService EVERNOTE_SERVICE = EvernoteSession.EvernoteService.SANDBOX;
     public static EvernoteSession mEvernoteSession = null;
-    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.login_activity);
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -81,7 +61,6 @@ public class LoginActivity extends AppCompatActivity {
                 return false;
             }
         });
-        context = this;
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -89,15 +68,15 @@ public class LoginActivity extends AppCompatActivity {
                 attemptLogin();
             }
         });
-        //Para capturar las excepciones que se dan dentro de la api de evernote a la hora de loguear
-//        Thread.currentThread().setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-//            public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
-//                closeLogin();
-//                Snackbar.make(findViewById(android.R.id.content), "Fallo en los datos, compruebelos y pruebe de nuevo", Snackbar.LENGTH_LONG)
-//                        .show();
-//
-//            }
-//        });
+//        Para capturar las excepciones que se dan dentro de la api de evernote a la hora de loguear
+        Thread.currentThread().setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
+                closeLogin();
+                Snackbar.make(findViewById(android.R.id.content), "Fallo en los datos, compruebelos y pruebe de nuevo", Snackbar.LENGTH_LONG)
+                        .show();
+
+            }
+        });
     }
 
     /**
@@ -145,13 +124,13 @@ public class LoginActivity extends AppCompatActivity {
             if (password.equals(DUMMY_CREDENTIALS[1])) {
                 password = CONSUMER_SECRET;
             }
-            mEvernoteSession=new EvernoteSession.Builder(this)
+            mEvernoteSession = new EvernoteSession.Builder(this)
                     .setEvernoteService(EVERNOTE_SERVICE)
                     .setSupportAppLinkedNotebooks(true)
                     .setForceAuthenticationInThirdPartyApp(true)
                     .build(email, password)
                     .asSingleton();
-            this.startActivityForResult(EvernoteLoginActivity.createIntent(getApplicationContext(), email, password, true, Locale.getDefault()), 14390);
+            mEvernoteSession.authenticate(this);
 
 
         }
@@ -168,7 +147,7 @@ public class LoginActivity extends AppCompatActivity {
     /**
      * metodo para hacer dismiss del login cuando el usuario no se puede loguear debido a fallo en credenciales
      */
-    public  void closeLogin() {
+    public void closeLogin() {
         List<Fragment> fragments = this.getSupportFragmentManager().getFragments();
         if (fragments != null) {
             for (Fragment fragment : fragments) {
@@ -179,32 +158,29 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * Segun el resultado del loguin avanzamos hacia la clase principal o no
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case 14390:
-                if (resultCode == Activity.RESULT_OK) {
-                    try {
-                        Intent intent = new Intent(this, MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        this.startActivity(intent);
-                        finishAffinity();
-                    }catch (Error e){
-                        Log.d("Loginactivity","error: "+e.getMessage());
-                    }
-                } else {
+        if (resultCode == Activity.RESULT_OK) {
+            try {
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                this.startActivity(intent);
+                finishAffinity();
+            } catch (Error e) {
+                Log.d("Loginactivity", "error: " + e.getMessage());
+            }
+        } else {
 
-                    Snackbar.make(findViewById(android.R.id.content), "Fallo en los datos, compruebelos y pruebe de nuevo", Snackbar.LENGTH_LONG)
-                            .show();
-
-                }
-                break;
-
-            default:
-                super.onActivityResult(requestCode, resultCode, data);
-                break;
+            Snackbar.make(findViewById(android.R.id.content), "Fallo en los datos, compruebelos y pruebe de nuevo", Snackbar.LENGTH_LONG)
+                    .show();
         }
     }
 }

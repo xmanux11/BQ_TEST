@@ -33,7 +33,6 @@ import com.evernote.edam.type.Note;
 import com.evernote.thrift.TException;
 
 
-
 import java.util.ArrayList;
 
 import java.util.Collections;
@@ -62,7 +61,7 @@ public class MainActivity extends Activity {
         FloatingActionButton fab_add_note = (FloatingActionButton) findViewById(R.id.fab_add_note);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-        context=this;
+        context = this;
         lista = (ListView) findViewById(R.id.lista_notas);
         lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
