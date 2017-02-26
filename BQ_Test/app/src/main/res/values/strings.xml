@@ -13,4 +13,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="create_note_add">Create</string>
+    <string name="create_note_title">Title</string>
+    <string name="create_note_body">body</string>
 </resources>

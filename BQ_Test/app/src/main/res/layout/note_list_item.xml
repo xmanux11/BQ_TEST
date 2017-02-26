@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight" >
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:paddingLeft="5dp">
 
     <TextView
         android:id="@+id/title_note"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:contentDescription="@string/app_name" />
+        android:contentDescription="@string/app_name"
+        android:paddingTop="5dp"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
         android:id="@+id/title_body"
@@ -17,16 +20,19 @@
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@id/title_note"
         android:maxLines="1"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:paddingLeft="5dp"
+        android:paddingTop="5dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
         android:textIsSelectable="false" />
+
     <TextView
         android:id="@+id/date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_below="@id/title_note"
         android:maxLines="1"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/colorPrimary"
         android:textIsSelectable="false" />
 
 </RelativeLayout>

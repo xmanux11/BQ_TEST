@@ -1,29 +1,33 @@
 package com.example.manumadrid.bqtest;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.evernote.client.android.EvernoteSession;
+import com.evernote.client.android.EvernoteUtil;
+import com.evernote.client.android.asyncclient.EvernoteNoteStoreClient;
+import com.evernote.edam.error.EDAMNotFoundException;
+import com.evernote.edam.error.EDAMSystemException;
+import com.evernote.edam.error.EDAMUserException;
+import com.evernote.edam.type.Note;
+import com.evernote.thrift.TException;
+
 /**
  * Created by ManuMadrid on 25/02/2017.
  */
 
-public class NoteFragment extends android.support.v4.app.Fragment {
+public class NoteFragment extends Activity {
 
-    public static final String TAG = "NoteFragment";
     private String titulo;
     private String cuerpo;
-
-//    public static NoteFragment newInstance(Bundle arguments){
-//        NoteFragment f = new NoteFragment();
-//        if(arguments != null){
-//            f.setArguments(arguments);
-//        }
-//        return f;
-//    }
 
     public NoteFragment(){
 
@@ -32,28 +36,21 @@ public class NoteFragment extends android.support.v4.app.Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.note_fragment);
 
-        if (getArguments().containsKey("title")) {
-            titulo = getArguments().getString("title");
+        if (getIntent().getExtras()!=null&&getIntent().getExtras().containsKey("title")) {
+            titulo = getIntent().getExtras().getString("title");
         }
-        if (getArguments().containsKey("body")) {
-            cuerpo = getArguments().getString("body");
+        if (getIntent().getExtras()!=null&&getIntent().getExtras().containsKey("body")) {
+            cuerpo = getIntent().getExtras().getString("body");
         }
-    }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.note_fragment, container, false);
-
-        //Mostramos el contenido al usuario
         if (titulo != null) {
-            ((TextView) rootView.findViewById(R.id.titulo)).setText(titulo);
+            ((TextView) findViewById(R.id.titulo)).setText(titulo);
         }
         if(cuerpo!=null){
-            ((TextView) rootView.findViewById(R.id.cuerpo)).setText(cuerpo);
+            ((TextView) findViewById(R.id.cuerpo)).setText(cuerpo);
         }
-
-        return rootView;
     }
+
 }

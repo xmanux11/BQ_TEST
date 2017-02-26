@@ -23,6 +23,8 @@
             </intent-filter>
         </activity>
         <activity android:name="com.example.manumadrid.bqtest.MainActivity" android:label="@string/app_name"/>
+        <activity android:name="com.example.manumadrid.bqtest.CreateNote" android:label="@string/app_name"/>
+        <activity android:name="com.example.manumadrid.bqtest.NoteFragment" android:label="@string/app_name"/>
     </application>
 
     <activity android:name="com.evernote.client.android.EvernoteOAuthActivity"/>

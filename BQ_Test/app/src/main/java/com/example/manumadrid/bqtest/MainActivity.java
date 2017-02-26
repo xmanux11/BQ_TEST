@@ -1,37 +1,57 @@
 package com.example.manumadrid.bqtest;
 
 
+import android.app.Activity;
+
+
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
+import android.support.design.widget.FloatingActionButton;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.FrameLayout;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 
+import com.evernote.auth.EvernoteAuth;
+import com.evernote.auth.EvernoteService;
 import com.evernote.client.android.EvernoteSession;
-import com.evernote.client.android.EvernoteUtil;
-import com.evernote.client.android.asyncclient.EvernoteCallback;
-import com.evernote.client.android.asyncclient.EvernoteNoteStoreClient;
+
+import com.evernote.clients.ClientFactory;
 import com.evernote.clients.NoteStoreClient;
 import com.evernote.edam.error.EDAMNotFoundException;
 import com.evernote.edam.error.EDAMSystemException;
 import com.evernote.edam.error.EDAMUserException;
+import com.evernote.edam.notestore.NoteFilter;
 import com.evernote.edam.type.Note;
-import com.evernote.edam.type.Notebook;
+
 import com.evernote.thrift.TException;
 
+
+
 import java.util.ArrayList;
+
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
 
 /**
  * Created by ManuMadrid on 22/02/2017.
  */
 
-public class MainActivity extends FragmentActivity {
-    ArrayList<NoteBQ> listaNotas=new ArrayList<>();
+public class MainActivity extends Activity {
+    ArrayList<NoteBQ> listaNotas = new ArrayList<>();
+    private NoteStoreClient noteStoreClient;
+    ListView lista;
+    Context context;
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,142 +59,125 @@ public class MainActivity extends FragmentActivity {
         if (!EvernoteSession.getInstance().isLoggedIn()) {
             finish();
         }
-        FrameLayout fragment= (FrameLayout)findViewById(R.id.framelayout_contenedor_detalle);
-
-        final ListView lista= (ListView) findViewById(R.id.lista_notas);
-
-        final EvernoteNoteStoreClient noteStoreClient = EvernoteSession.getInstance().getEvernoteClientFactory().getNoteStoreClient();
-        noteStoreClient.listNotebooksAsync(new EvernoteCallback<List<Notebook>>() {
-            @Override
-            public void onSuccess(List<Notebook> result) {
-                for (Notebook notebook : result) {
-                    String guid= notebook.getGuid();
-                    try {
-                        Note nota= noteStoreClient.getNote(guid,true,false,false,false);
-                        String titulo=nota.getTitle();
-                        String cuerpo=nota.getContent();
-                        Long fecha=nota.getCreated();
-                        NoteBQ notaBQ = new NoteBQ(titulo,cuerpo,fecha);
-                        listaNotas.add(notaBQ);
-                    } catch (EDAMUserException e) {
-                        e.printStackTrace();
-                    } catch (EDAMSystemException e) {
-                        e.printStackTrace();
-                    } catch (EDAMNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (TException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-//                Snackbar.make(findViewById(),"notebooks have been retrieved", Snackbar.LENGTH_LONG)
-//                        .show();
-            }
-
-            @Override
-            public void onException(Exception exception) {
-                Log.e("MainActivity", "Error retrieving notebooks", exception);
-            }
-        });
-        lista.setAdapter(new NoteAdapter(this,listaNotas));
-
+        FloatingActionButton fab_add_note = (FloatingActionButton) findViewById(R.id.fab_add_note);
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        context=this;
+        lista = (ListView) findViewById(R.id.lista_notas);
         lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView adapter, View view, int position, long arg) {
                 NoteBQ item = (NoteBQ) lista.getAdapter().getItem(position);
                 String title = item.getTitle();
                 String body = item.getBody();
+                Intent mIntent = new Intent(getApplicationContext(), NoteFragment.class);
+                Bundle extras = new Bundle();
+                extras.putString("title", title);
+                extras.putString("body", body);
+                mIntent.putExtras(extras);
+                startActivity(mIntent);
 
-                Bundle arguments = new Bundle();
-                arguments.putString("title", title);
-                arguments.putString("body",body);
-                NoteFragment fragment = new NoteFragment();
-                fragment.setArguments(arguments);
-                getSupportFragmentManager().beginTransaction().replace(R.id.framelayout_contenedor_detalle, fragment).commit();
 
-//                Bundle arguments = new Bundle();
-//                arguments.putString("title", title);
-//                arguments.putString("body",body);
-//                NoteFragment fragment = NoteFragment.newInstance(arguments);
-//                FragmentTransaction ft = getFragmentManager().beginTransaction();
-//                ft.replace(android.R.id.content, fragment, NoteFragment.TAG);
-//                ft.commit();
+            }
+        });
+        fab_add_note.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(getApplicationContext(), CreateNote.class), 1);
+
+            }
+        });
+        final Spinner dropdown = (Spinner) findViewById(R.id.desplegable);
+        String[] items = new String[]{"Fecha", "Titulo"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
+        dropdown.setAdapter(adapter);
+        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                ArrayList<NoteBQ> listaNotasAux = listaNotas;
+                switch (position) {
+                    case 0:
+                        listaNotas = new ArrayList<NoteBQ>();
+                        Collections.sort(listaNotasAux, new Comparator<NoteBQ>() {
+                            @Override
+                            public int compare(NoteBQ o1, NoteBQ o2) {
+                                int res = 0;
+                                if (o1.getFechaCreacion() > o2.getFechaCreacion()) {
+                                    res = -1;
+                                }
+                                if (o1.getFechaCreacion() < o2.getFechaCreacion()) {
+                                    res = 1;
+                                }
+                                return res;
+                            }
+                        });
+                        listaNotas = listaNotasAux;
+                        lista.invalidateViews();
+                        lista.setAdapter(new NoteAdapter(context, listaNotas));
+                        break;
+                    case 1:
+                        listaNotas = new ArrayList<NoteBQ>();
+                        Collections.sort(listaNotasAux, new Comparator<NoteBQ>() {
+                            @Override
+                            public int compare(NoteBQ o1, NoteBQ o2) {
+                                return o1.getTitle().compareToIgnoreCase(o2.getTitle());
+                            }
+                        });
+                        listaNotas = listaNotasAux;
+                        lista.invalidateViews();
+                        lista.setAdapter(new NoteAdapter(context, listaNotas));
+                        break;
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
 
 
     }
 
-    public void createNote(){
-        if (!EvernoteSession.getInstance().isLoggedIn()) {
-            Snackbar.make(getCurrentFocus(), "error en la autentificacion", Snackbar.LENGTH_LONG)
-                    .show();
-            finish();
-        }
+    public void updateList() {
 
-        EvernoteNoteStoreClient noteStoreClient = EvernoteSession.getInstance().getEvernoteClientFactory().getNoteStoreClient();
-
-        Note note = new Note();
-        note.setTitle("My title");
-        note.setContent(EvernoteUtil.NOTE_PREFIX + "My content" + EvernoteUtil.NOTE_SUFFIX);
-
-        noteStoreClient.createNoteAsync(note, new EvernoteCallback<Note>() {
-            @Override
-            public void onSuccess(Note result) {
-                Snackbar.make(getCurrentFocus(),result.getTitle()+ "has been created", Snackbar.LENGTH_LONG)
-                        .show();
-            }
-
-            @Override
-            public void onException(Exception exception) {
-                Snackbar.make(getCurrentFocus(),"no se ha podido crear la nota", Snackbar.LENGTH_LONG)
-                        .show();
-                Log.e("MainActivity", "Error creating note", exception);
-            }
-        });
-    }
-
-    public void muestraNota(){
-
-    }
-
-    public Note makeNote(NoteStoreClient noteStore, String noteTitle, String noteBody, Notebook parentNotebook) {
-
-        String nBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-        nBody += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">";
-        nBody += "<en-note>" + noteBody + "</en-note>";
-
-        // Create note object
-        Note ourNote = new Note();
-        ourNote.setTitle(noteTitle);
-        ourNote.setContent(nBody);
-
-        // parentNotebook is optional; if omitted, default notebook is used
-        if (parentNotebook != null && parentNotebook.isSetGuid()) {
-            ourNote.setNotebookGuid(parentNotebook.getGuid());
-        }
-
-        // Attempt to create note in Evernote account
-        Note note = null;
+        EvernoteAuth evernoteAuth = new EvernoteAuth(EvernoteService.SANDBOX, EvernoteSession.getInstance().getAuthToken());
+        ClientFactory factory = new ClientFactory(evernoteAuth);
         try {
-            note = noteStore.createNote(ourNote);
-        } catch (EDAMUserException edue) {
-            // Something was wrong with the note data
-            // See EDAMErrorCode enumeration for error code explanation
-            // http://dev.evernote.com/documentation/reference/Errors.html#Enum_EDAMErrorCode
-            System.out.println("EDAMUserException: " + edue);
-        } catch (EDAMNotFoundException ednfe) {
-            // Parent Notebook GUID doesn't correspond to an actual notebook
-            System.out.println("EDAMNotFoundException: Invalid parent notebook GUID");
-        } catch (Exception e) {
-            // Other unexpected exceptions
+            noteStoreClient = factory.createNoteStoreClient();
+        } catch (EDAMUserException e) {
+            e.printStackTrace();
+        } catch (EDAMSystemException e) {
+            e.printStackTrace();
+        } catch (TException e) {
             e.printStackTrace();
         }
 
-        // Return created note object
-        return note;
+        try {
+            listaNotas = new ArrayList<>();
+            List<Note> notes = noteStoreClient.findNotes(new NoteFilter(), 0, 1000).getNotes();
+            List<Note> notesWithContent = new ArrayList<>();
+            for (Note note : notes) {
+                notesWithContent.add(noteStoreClient.getNote(note.getGuid(), true, false, false, false));
+            }
+            for (Note nota : notesWithContent) {
+                String content = nota.getContent();
+                String contentParse = content.substring(content.indexOf("<en-note>") + 9, content.indexOf("</en-note>"));
+                NoteBQ note = new NoteBQ(nota.getTitle(), contentParse, nota.getCreated());
+                listaNotas.add(note);
+            }
+        } catch (EDAMUserException | EDAMSystemException | EDAMNotFoundException | TException e) {
+            Log.d("Main activity", "Unexpected error obtaining notes using Evernote SDK", e);
 
+        }
+        lista.setAdapter(new NoteAdapter(this, listaNotas));
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        lista.invalidateViews();
+        updateList();
+    }
 }

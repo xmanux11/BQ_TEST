@@ -1,20 +1,19 @@
 package com.example.manumadrid.bqtest;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
+
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-
-
-import android.os.Build;
 import android.os.Bundle;
 
+
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,7 +24,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.evernote.auth.EvernoteAuth;
+import com.evernote.auth.EvernoteService;
+import com.evernote.client.android.EvernoteOAuthActivity;
 import com.evernote.client.android.EvernoteSession;
+import com.evernote.client.android.EvernoteUtil;
+import com.evernote.client.android.login.EvernoteLoginActivity;
+import com.evernote.clients.ClientFactory;
+import com.evernote.clients.NoteStoreClient;
+import com.evernote.edam.type.Notebook;
+import com.evernote.edam.userstore.UserStore;
+
+
+import java.util.List;
+import java.util.Locale;
 
 
 /**
@@ -41,26 +53,21 @@ public class LoginActivity extends AppCompatActivity {
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "bq", "bqpass"};
 
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
-
-    private static final String CONSUMER_KEY = "manu-1736";
-    private static final String CONSUMER_SECRET = "785aa91177e553ff";
-    private static final boolean SUPPORT_APP_LINKED_NOTEBOOKS = true;
+    private static final String CONSUMER_KEY = "manu-ramos-1";
+    private static final String CONSUMER_SECRET = "d48315a7bdf66b59";
+    private static final String EXTRA_SUPPORT_APP_LINKED_NOTEBOOKS = "EXTRA_SUPPORT_APP_LINKED_NOTEBOOKS";
+    private static final String EXTRA_LOCALE = "EXTRA_LOCALE";
     private static final EvernoteSession.EvernoteService EVERNOTE_SERVICE = EvernoteSession.EvernoteService.SANDBOX;
-    EvernoteSession mEvernoteSession = null;
+    public static EvernoteSession mEvernoteSession = null;
     private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -82,10 +89,15 @@ public class LoginActivity extends AppCompatActivity {
                 attemptLogin();
             }
         });
-
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
-
+        //Para capturar las excepciones que se dan dentro de la api de evernote a la hora de loguear
+//        Thread.currentThread().setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+//            public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
+//                closeLogin();
+//                Snackbar.make(findViewById(android.R.id.content), "Fallo en los datos, compruebelos y pruebe de nuevo", Snackbar.LENGTH_LONG)
+//                        .show();
+//
+//            }
+//        });
     }
 
     /**
@@ -125,25 +137,22 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
             if (email.equals(DUMMY_CREDENTIALS[0])) {
                 email = CONSUMER_KEY;
             }
             if (password.equals(DUMMY_CREDENTIALS[1])) {
                 password = CONSUMER_SECRET;
             }
-            mEvernoteSession = new EvernoteSession.Builder(context)
+            mEvernoteSession=new EvernoteSession.Builder(this)
                     .setEvernoteService(EVERNOTE_SERVICE)
-                    .setSupportAppLinkedNotebooks(SUPPORT_APP_LINKED_NOTEBOOKS)
+                    .setSupportAppLinkedNotebooks(true)
+                    .setForceAuthenticationInThirdPartyApp(true)
                     .build(email, password)
                     .asSingleton();
-            mEvernoteSession.authenticate(this);
-//            showProgress(true);
+            this.startActivityForResult(EvernoteLoginActivity.createIntent(getApplicationContext(), email, password, true, Locale.getDefault()), 14390);
+
 
         }
     }
@@ -157,55 +166,37 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Shows the progress UI and hides the login form.
+     * metodo para hacer dismiss del login cuando el usuario no se puede loguear debido a fallo en credenciales
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+    public  void closeLogin() {
+        List<Fragment> fragments = this.getSupportFragmentManager().getFragments();
+        if (fragments != null) {
+            for (Fragment fragment : fragments) {
+                if (fragment instanceof DialogFragment) {
+                    ((DialogFragment) fragment).dismiss();
                 }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
         }
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        showProgress(false);
         switch (requestCode) {
-            case 66394:
+            case 14390:
                 if (resultCode == Activity.RESULT_OK) {
-                    finishAffinity();
-                    Intent intent = new Intent(this, MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    this.startActivity(intent);
+                    try {
+                        Intent intent = new Intent(this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        this.startActivity(intent);
+                        finishAffinity();
+                    }catch (Error e){
+                        Log.d("Loginactivity","error: "+e.getMessage());
+                    }
                 } else {
 
-                    Snackbar.make(getCurrentFocus(), "Fallo en los datos, compruebelos y pruebe de nuevo", Snackbar.LENGTH_LONG)
+                    Snackbar.make(findViewById(android.R.id.content), "Fallo en los datos, compruebelos y pruebe de nuevo", Snackbar.LENGTH_LONG)
                             .show();
 
                 }

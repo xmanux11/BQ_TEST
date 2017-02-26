@@ -51,7 +51,7 @@ public class NoteAdapter extends BaseAdapter {
 
         TextView title = (TextView) rowView.findViewById(R.id.title_note);
         TextView body = (TextView) rowView.findViewById(R.id.title_body);
-        TextView date = (TextView) rowView.findViewById(R.id.title_body);
+        TextView date = (TextView) rowView.findViewById(R.id.date);
 
         NoteBQ nota = this.notas.get(position);
         title.setText(nota.getTitle());
