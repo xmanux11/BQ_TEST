@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements Thread.UncaughtExceptionHandler {
 
 
     private static final String CONSUMER_KEY = "manu-ramos-1";
@@ -40,15 +40,8 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
         
-//        Para capturar las excepciones que se dan dentro de la api de evernote a la hora de loguear
-        Thread.currentThread().setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
-                closeLogin();
-                Snackbar.make(findViewById(android.R.id.content), "Fallo en los datos, compruebelos y pruebe de nuevo", Snackbar.LENGTH_LONG)
-                        .show();
 
-            }
-        });
+
     }
 
     /**
@@ -105,6 +98,14 @@ public class LoginActivity extends AppCompatActivity {
             Snackbar.make(findViewById(android.R.id.content), "Fallo en los datos, compruebelos y pruebe de nuevo", Snackbar.LENGTH_LONG)
                     .show();
         }
+    }
+
+//        Para capturar las excepciones que se dan dentro de la api de evernote a la hora de loguear
+    @Override
+    public void uncaughtException(Thread t, Throwable e) {
+        closeLogin();
+        Snackbar.make(findViewById(android.R.id.content), "Fallo en los datos, compruebelos y pruebe de nuevo", Snackbar.LENGTH_LONG)
+                .show();
     }
 }
 
