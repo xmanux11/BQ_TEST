@@ -1,32 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center|top"
-    android:orientation="vertical">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/titulo"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:hint="@string/create_note_title"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <EditText
-        android:id="@+id/cuerpo"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:ems="10"
-        android:hint="@string/create_note_body"
-        android:inputType="textMultiLine" />
+        android:layout_height="match_parent"
+        android:gravity="center|top"
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/create"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/create_note_add" />
+        <EditText
+            android:id="@+id/titulo"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:hint="@string/create_note_title"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <EditText
+            android:id="@+id/cuerpo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/titulo"
+            android:layout_centerHorizontal="true"
+            android:adjustViewBounds="true"
+            android:ems="10"
+            android:hint="@string/create_note_body"
+            android:inputType="textMultiLine" />
+
+        <LinearLayout
+            android:id="@+id/opciones"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/cuerpo"
+            android:layout_centerHorizontal="true"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/create"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/create_note_add" />
+
+            <Button
+                android:id="@+id/OCR"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="saveGesto"
+                android:text="@string/use_ocr" />
+        </LinearLayout>
 
 
-</LinearLayout>
+        <LinearLayout
+            android:id="@+id/layoutocrtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/opciones"
+            android:orientation="horizontal"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/create_note_title" />
+
+            <android.gesture.GestureOverlayView
+                android:id="@+id/titleocr"
+                android:layout_width="300dp"
+                android:layout_height="150dp"
+                android:background="@android:color/white"
+                android:eventsInterceptionEnabled="true"
+                android:fadeEnabled="false"
+                android:gestureColor="@android:color/black"
+                android:gestureStrokeLengthThreshold="0.1"
+                android:gestureStrokeType="multiple"
+                android:orientation="vertical" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutocrbody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/layoutocrtitle"
+            android:orientation="horizontal"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/create_note_body" />
+
+            <android.gesture.GestureOverlayView
+                android:id="@+id/bodyocr"
+                android:layout_width="300dp"
+                android:layout_height="150dp"
+                android:background="@android:color/white"
+                android:eventsInterceptionEnabled="true"
+                android:fadeEnabled="false"
+                android:gestureColor="@android:color/black"
+                android:gestureStrokeLengthThreshold="0.1"
+                android:gestureStrokeType="multiple"
+                android:orientation="vertical" />
+        </LinearLayout>
+
+
+    </RelativeLayout>
+</ScrollView>

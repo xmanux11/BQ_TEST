@@ -14,6 +14,7 @@
         completions."
     </string>
     <string name="create_note_add">Create</string>
+    <string name="use_ocr">OCR</string>
     <string name="create_note_title">Title</string>
     <string name="create_note_body">body</string>
 </resources>

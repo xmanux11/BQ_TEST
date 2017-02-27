@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-        if (!EvernoteSession.getInstance().isLoggedIn()) {
+        if (EvernoteSession.getInstance()!=null&&!EvernoteSession.getInstance().isLoggedIn()) {
             finish();
         }
         FloatingActionButton fab_add_note = (FloatingActionButton) findViewById(R.id.fab_add_note);
@@ -167,10 +167,9 @@ public class MainActivity extends Activity {
      * metodo para actualizar la lista de notas desde el servidor
      */
     public void updateList() {
-
-        EvernoteAuth evernoteAuth = new EvernoteAuth(EvernoteService.SANDBOX, EvernoteSession.getInstance().getAuthToken());
-        ClientFactory factory = new ClientFactory(evernoteAuth);
         try {
+            EvernoteAuth evernoteAuth = new EvernoteAuth(EvernoteService.SANDBOX, EvernoteSession.getInstance().getAuthToken());
+            ClientFactory factory = new ClientFactory(evernoteAuth);
             noteStoreClient = factory.createNoteStoreClient();
         } catch (EDAMUserException e) {
             e.printStackTrace();
