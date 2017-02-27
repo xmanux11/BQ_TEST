@@ -42,10 +42,17 @@ import java.util.List;
 
 /**
  * Created by ManuMadrid on 22/02/2017.
+ * Actividad Principal que muestra la lista de notas del usuario
  */
 
 public class MainActivity extends Activity {
+    /**
+     * lista de notas del usuario
+     */
     ArrayList<NoteBQ> listaNotas = new ArrayList<>();
+    /**
+     * Clase que nos permite recuperar las notas del usuario desde el servidor
+     */
     private NoteStoreClient noteStoreClient;
     ListView lista;
     Context context;
@@ -59,10 +66,21 @@ public class MainActivity extends Activity {
             finish();
         }
         FloatingActionButton fab_add_note = (FloatingActionButton) findViewById(R.id.fab_add_note);
+
+        /**
+         * esta parte del codigo nos permite que se puedan lanzar peticiones sincronas en nuestra app con el consecuente retraso en la carga
+         * pero dado que es una aplicacion sencillaque unicamente devuelve una lista de notas (pequeña) se puede permitir ese retraso en el
+         * hilo principal aunque normalmente esto se deberia hacer con un asyntask y en el onlistener de ese asintask asignar las notas pero debido a
+         * la falta de tiempo no lo he implementado de esta forma
+         */
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         context = this;
         lista = (ListView) findViewById(R.id.lista_notas);
+        /**
+         * para cada una de las notas lanzamos una actividad en la que le pasamos los datos de cada nota para mostrarlos, tambien se podria
+         * haber usado un Fragment en vez de una Activity
+         */
         lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView adapter, View view, int position, long arg) {
@@ -79,6 +97,9 @@ public class MainActivity extends Activity {
 
             }
         });
+        /**
+         * boton para crear una nota nueva, se podria haber usado un Fragment tambien
+         */
         fab_add_note.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,6 +107,9 @@ public class MainActivity extends Activity {
 
             }
         });
+        /**
+         * Spiner desde el cual ordenamos las notas
+         */
         final Spinner dropdown = (Spinner) findViewById(R.id.desplegable);
         String[] items = new String[]{"Fecha", "Titulo"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
@@ -139,6 +163,9 @@ public class MainActivity extends Activity {
 
     }
 
+    /**
+     * metodo para actualizar la lista de notas desde el servidor
+     */
     public void updateList() {
 
         EvernoteAuth evernoteAuth = new EvernoteAuth(EvernoteService.SANDBOX, EvernoteSession.getInstance().getAuthToken());

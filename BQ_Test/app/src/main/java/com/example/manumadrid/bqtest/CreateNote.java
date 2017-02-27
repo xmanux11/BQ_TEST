@@ -21,6 +21,7 @@ import com.evernote.thrift.TException;
 
 /**
  * Created by ManuMadrid on 25/02/2017.
+ * Clase para crear las notas y mandarlas al servidor
  */
 
 public class CreateNote extends Activity {
@@ -56,7 +57,6 @@ public class CreateNote extends Activity {
         Note note = new Note();
         note.setTitle(noteBQ.getTitle());
         note.setContent(EvernoteUtil.NOTE_PREFIX + noteBQ.getBody() + EvernoteUtil.NOTE_SUFFIX);
-//        String developerToken = "S=s1:U=9366f:E=161d300a51a:C=15a7b4f77d0:P=1cd:A=en-devtoken:V=2:H=a7010c31118a826bb0326d24108057b3";
         EvernoteAuth evernoteAuth = new EvernoteAuth(EvernoteService.SANDBOX, EvernoteSession.getInstance().getAuthToken());
         ClientFactory factory = new ClientFactory(evernoteAuth);
         NoteStoreClient noteStoreClient;
@@ -72,7 +72,6 @@ public class CreateNote extends Activity {
         } catch (EDAMNotFoundException e) {
             Log.d("CreateNote", "Unexpected error adding note using Evernote SDK", e);
         }
-//        setResult(Activity.RESULT_OK);
         finish();
     }
 }

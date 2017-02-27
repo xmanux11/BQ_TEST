@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 /**
  * Created by ManuMadrid on 25/02/2017.
+ * Adaptador para la lista de NoteBQ
  */
 
 public class NoteAdapter extends BaseAdapter {
