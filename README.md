@@ -1,4 +1,4 @@
-# BQ_TEST
+﻿# BQ_TEST
 Prueba aplicacion BQ
 
 Durante el desarrollo de la app segui estos pasos:
@@ -16,5 +16,9 @@ Desarrollo de la actividad principal
 Desarrollo de clases auxiliares
   En un principio pense en utilizar fragment para la creacion y visualizacion de notas pero considere que al disponer de poco tiempo seria   mejor utilizar activities.
   
- Faltaria por hacer la escritura por pantalla que nunca lo he investigado. 
+Desarrollo del input con OCR
+  Nunca he utilizado un ocr en android, le he pasado un aprendizaje de español imaginando que solo se va a escribir en ese idioma
+  
+ 
+
   
